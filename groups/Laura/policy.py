@@ -16,22 +16,6 @@ class HashableConnectState(ConnectState):
             and np.array_equal(self.board, other.board)
             and self.player == other.player
         )
-    
-def current_player(self, s: np.array):
-        red = 0
-        yellow = 0
-
-        for c in range(s.shape[1]):
-            for r in range(s.shape[0]):
-                if s[r][c] == -1:
-                    red += 1
-                elif s[r][c] == 1:
-                    yellow += 1
-
-        if red == yellow:
-            return -1
-        else:
-            return 1
 
 class MCTSAgent(Policy):
     num_simulations = 300
@@ -52,7 +36,7 @@ class MCTSAgent(Policy):
         
         def successor_fn(state: ConnectState, action: int, rng: np.random.RandomState):
             next_s = state.transition(action)
-            return HashableConnectState(next_s)
+            return HashableConnectState(next_s.board, next_s.player)
 
         def terminal_fn(state: ConnectState):
             return state.is_final()
@@ -79,3 +63,19 @@ class MCTSAgent(Policy):
 
         best_a = mcts_analysis["best_action"]
         return int(best_a)
+    
+    def current_player(self, s: np.array):
+        red = 0
+        yellow = 0
+
+        for c in range(s.shape[1]):
+            for r in range(s.shape[0]):
+                if s[r][c] == -1:
+                    red += 1
+                elif s[r][c] == 1:
+                    yellow += 1
+
+        if red == yellow:
+            return -1
+        else:
+            return 1

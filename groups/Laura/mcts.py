@@ -226,8 +226,8 @@ def mcts_uct(
         # Rollout
         while not terminal_fn(s) and depth < max_depth and len(legal_actions_fn(s)) != 0:
             actions = legal_actions_fn(s)
-
-            a = rng.choice(actions)
+            
+            a = int(rng.choice(actions))
             s = successor_fn(s, a, rng)
             depth += 1
 
