@@ -257,7 +257,7 @@ def mcts_uct(
     if q_root:
         max_q = max(q_root.values())
         best_candidates = [a for a in q_root if q_root[a] == max_q]
-        best_action = sorted(best_candidates)[0]
+        best_action = sorted(best_candidates)[0]    
 
     return {"q_root": q_root, "n_root": n_root, "best_action": best_action,}
 

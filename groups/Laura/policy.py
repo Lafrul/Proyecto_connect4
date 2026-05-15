@@ -4,7 +4,6 @@ from connect4.connect_state import ConnectState
 from groups.Laura.mcts import mcts_uct
 import numpy as np
 from connect4.policy import Policy
-from typing import override
 
 class HashableConnectState(ConnectState):
     def __hash__(self):
@@ -18,18 +17,30 @@ class HashableConnectState(ConnectState):
         )
 
 class MCTSAgent(Policy):
-    num_simulations = 300
+    num_simulations = 100
     max_depth = 42 # Esta bien que este sea el maximo aunque si el estado es > 0 no se puedan hacer 42 acciones?
     exploration_c = math.sqrt(2)
+    
+    def __init__(self):
+        self.rng = np.random.RandomState(seed=42)
 
-    @override
-    def mount(self) -> None:
-        self.rng = np.random.RandomState(seed=42)  
+    def mount(self, timeout=None) -> None:
+        self.rng = np.random.RandomState(seed=42) 
 
-    @override
     def act(self, s: np.ndarray) -> int:
         player = self.current_player(s)
         root_state = HashableConnectState(s, player)
+
+        if root_state.is_final():
+            cols = root_state.get_free_cols()
+            if cols:
+                return cols[0]
+            else: 
+                return 0
+
+        forced_a = self.defensive_move(root_state, player)
+        if forced_a is not None:
+            return forced_a
 
         def legal_actions_fn(state: ConnectState):
             return state.get_free_cols()
@@ -62,7 +73,7 @@ class MCTSAgent(Policy):
                             rng=self.rng)
 
         best_a = mcts_analysis["best_action"]
-        return int(best_a)
+        return best_a
     
     def current_player(self, s: np.array):
         red = 0
@@ -79,3 +90,19 @@ class MCTSAgent(Policy):
             return -1
         else:
             return 1
+        
+    def defensive_move(self, root_state: ConnectState, player: int):
+        cols = root_state.get_free_cols()
+        
+        for col in cols:
+            next_s = root_state.transition(col)
+            if next_s.get_winner() == player:
+                return col
+            
+        for col in cols:
+            opponent_state = HashableConnectState(root_state.board, -player)
+            next_s = opponent_state.transition(col)
+            if next_s.get_winner() == -player:
+                return col
+        
+        return None
