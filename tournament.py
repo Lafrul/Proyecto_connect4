@@ -16,9 +16,25 @@ def make_initial_matches(
     if shuffle:
         rng = np.random.default_rng(seed)
         rng.shuffle(players)
+
+    if len(players) == 0:
+        return []
+    if len(players) == 1:
+        return [(players[0], None)]
+
     size = next_power_of_two(len(players))
-    players += [None] * (size - len(players))  # BYEs
-    return [(players[i], players[i + 1]) for i in range(0, len(players), 2)]
+    bye_count = size - len(players)
+
+    matches: Versus = []
+    for player in players[:bye_count]:
+        matches.append((player, None))
+
+    remaining_players = players[bye_count:]
+    matches.extend(
+        (remaining_players[i], remaining_players[i + 1])
+        for i in range(0, len(remaining_players), 2)
+    )
+    return matches
 
 
 def play_round(
