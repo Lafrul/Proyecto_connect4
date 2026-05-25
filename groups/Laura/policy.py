@@ -1,9 +1,9 @@
 import math
+import time
 
 from connect4.connect_state import ConnectState
 import numpy as np
 from connect4.policy import Policy
-import math
 from typing import Any, Callable, Dict, Iterable
 
 class HashableConnectState(ConnectState):
@@ -24,9 +24,27 @@ class MCTSAgent(Policy):
     
     def __init__(self):
         self.rng = np.random.RandomState(seed=42)
+        self.timeout = None
+        self.start_time = None
 
     def mount(self, timeout=None) -> None:
         self.rng = np.random.RandomState(seed=42) 
+        self.timeout = timeout
+        self.start_time = time.time()
+
+    def sims_this_turn(self, s: np.array):
+        elapsed = time.time() - self.start_time
+        remaining = self.timeout - elapsed
+
+        fichas = int(np.sum(s != 0))
+        turnos_jugados = fichas // 2
+        max_turnos_restantes = max(1, (42-fichas)//2)
+
+        tiempo_turno = (remaining * 0.8)/max_turnos_restantes
+        time_limit = max(0.5, min(20, tiempo_turno))
+
+        sims = int(time_limit/0.03) # 30ms aprox. por simulación
+        return sims
 
     def act(self, s: np.ndarray) -> int:
         player = self.current_player(s)
@@ -46,6 +64,9 @@ class MCTSAgent(Policy):
         double_a = self.double_threat(root_state, player)
         if double_a is not None:
             return double_a
+        
+        if self.timeout is not None and self.start_time is not None:
+            self.num_simulations = self.sims_this_turn(s)
 
         def legal_actions_fn(state: ConnectState):
             return state.get_free_cols()
