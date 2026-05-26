@@ -1,0 +1,4 @@
+starter,games,laura_wins,mario_wins,draws,laura_win_rate,mario_win_rate,draw_rate,mean_moves,mean_total_game_time
+Todos,50,25,25,0,0.5,0.5,0.0,35.0,10.198384425994009
+Agente Laura MCTS,25,0,25,0,0.0,1.0,0.0,30.0,9.70636871600058
+Agente Mario,25,25,0,0,1.0,0.0,0.0,40.0,10.690400135987439

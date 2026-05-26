@@ -1,0 +1,4 @@
+starter,games,s_wins,mario_wins,draws,s_win_rate,mario_win_rate,draw_rate,mean_moves,mean_total_game_time
+Todos,50,38,3,9,0.76,0.06,0.18,20.36,15.828974130011629
+Agente Mario,25,13,3,9,0.52,0.12,0.36,33.4,23.80684596800711
+Agente con rollouts heuristicos,25,25,0,0,1.0,0.0,0.0,7.32,7.851102292016148
