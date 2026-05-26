@@ -1,8 +1,0 @@
-# Ignore all files in this directory
-*
-
-# Except keep policy.py tracked
-!policy.py
-
-# Keep this .gitinore file (optional)
-!.gitinore
