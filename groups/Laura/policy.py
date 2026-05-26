@@ -37,7 +37,6 @@ class MCTSAgent(Policy):
         remaining = self.timeout - elapsed
 
         fichas = int(np.sum(s != 0))
-        turnos_jugados = fichas // 2
         max_turnos_restantes = max(1, (42-fichas)//2)
 
         tiempo_turno = (remaining * 0.8)/max_turnos_restantes

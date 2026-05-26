@@ -100,14 +100,3 @@ jupyter notebook entrega.ipynb
 ```
 
 El notebook asume que se corre desde la carpeta `groups/Laura/` con el proyecto en el path. Si hay errores de import, ajustar la variable `PROJECT_ROOT` en la celda de setup.
-
----
-
-## Versiones del agente
-
-| Versión | Descripción | Archivo |
-|---|---|---|
-| `MCTSAgent` | Versión completa con jugadas forzadas, amenaza doble y rollout inteligente | `policy.py` |
-| `MCTSAgentNotForced` | Solo MCTS puro, sin jugadas forzadas ni amenaza doble | definida en `entrega.ipynb` para comparación de estrategias |
-
-La comparación entre versiones se encuentra en la **Sección 4** del notebook.
