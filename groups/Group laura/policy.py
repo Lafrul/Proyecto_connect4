@@ -1,9 +1,10 @@
 import math
+import time
 
 from connect4.connect_state import ConnectState
-from .mcts import mcts_uct
 import numpy as np
 from connect4.policy import Policy
+from typing import Any, Callable, Dict, Iterable
 
 class HashableConnectState(ConnectState):
     def __hash__(self):
@@ -16,16 +17,33 @@ class HashableConnectState(ConnectState):
             and self.player == other.player
         )
 
+# ================ Agent ==================
 class MCTSAgent(Policy):
     num_simulations = 100
-    max_depth = 42 # Esta bien que este sea el maximo aunque si el estado es > 0 no se puedan hacer 42 acciones?
     exploration_c = math.sqrt(2)
     
     def __init__(self):
         self.rng = np.random.RandomState(seed=42)
+        self.timeout = None
+        self.start_time = None
 
     def mount(self, timeout=None) -> None:
         self.rng = np.random.RandomState(seed=42) 
+        self.timeout = timeout
+        self.start_time = time.time()
+
+    def sims_this_turn(self, s: np.array):
+        elapsed = time.time() - self.start_time
+        remaining = self.timeout - elapsed
+
+        fichas = int(np.sum(s != 0))
+        max_turnos_restantes = max(1, (42-fichas)//2)
+
+        tiempo_turno = (remaining * 0.8)/max_turnos_restantes
+        time_limit = max(0.5, min(20, tiempo_turno))
+
+        sims = int(time_limit/0.03) # 30ms aprox. por simulación
+        return sims
 
     def act(self, s: np.ndarray) -> int:
         player = self.current_player(s)
@@ -38,9 +56,16 @@ class MCTSAgent(Policy):
             else: 
                 return 0
 
-        forced_a = self.defensive_move(root_state, player)
+        forced_a = self.forced_move(root_state, player)
         if forced_a is not None:
             return forced_a
+        
+        double_a = self.double_threat(root_state, player)
+        if double_a is not None:
+            return double_a
+        
+        if self.timeout is not None and self.start_time is not None:
+            self.num_simulations = self.sims_this_turn(s)
 
         def legal_actions_fn(state: ConnectState):
             return state.get_free_cols()
@@ -60,6 +85,9 @@ class MCTSAgent(Policy):
                 return 0
             else:
                 return -1
+            
+        fichas_jugadas = int(np.sum(s != 0))
+        max_depth = 42 - fichas_jugadas
 
         mcts_analysis = mcts_uct(
                             root_state,
@@ -68,7 +96,7 @@ class MCTSAgent(Policy):
                             terminal_fn,
                             reward_fn,
                             num_simulations=self.num_simulations,
-                            max_depth=self.max_depth,
+                            max_depth=max_depth,
                             exploration_c=self.exploration_c,
                             rng=self.rng)
 
@@ -90,8 +118,9 @@ class MCTSAgent(Policy):
             return -1
         else:
             return 1
-        
-    def defensive_move(self, root_state: ConnectState, player: int):
+    
+    # Si existe la posibilidad de ganar la toma y si va a perder bloquea
+    def forced_move(self, root_state: ConnectState, player: int):
         cols = root_state.get_free_cols()
         
         for col in cols:
@@ -106,3 +135,134 @@ class MCTSAgent(Policy):
                 return col
         
         return None
+    
+    # Fuerza estados donde se pueda ganar con dos posbiles acciones y 
+    # evita estados en donde el oponente pueda ganar con dos posibles acciones 
+    def double_threat(self, root_state: ConnectState, player: int):
+        cols = root_state.get_free_cols()
+        opponent = -player
+
+        for col in cols:
+            next_s = root_state.transition(col)
+            future_wins = sum(1 for c in next_s.get_free_cols() if next_s.transition(c).get_winner() == player)
+            if future_wins >= 2:
+                return int(col)
+            
+        for col in cols:
+            opponent_state = HashableConnectState(root_state.board, -player)
+            next_s = opponent_state.transition(col)
+            future_wins_opp = sum(1 for c in next_s.get_free_cols() if next_s.transition(c).get_winner() == opponent)
+            if future_wins_opp >= 2:
+                return int(col)
+        
+        return None
+    
+# ================ MCTS ==================
+def mcts_uct(
+    root_state: Any,
+    legal_actions_fn: Callable[[Any], Iterable[Any]],
+    successor_fn: Callable[[Any, Any, np.random.RandomState], Any],
+    terminal_fn: Callable[[Any], bool],
+    reward_fn: Callable[[Any], float],
+    *,
+    num_simulations: int,
+    max_depth: int,
+    exploration_c: float,
+    rng: np.random.RandomState,
+) -> Dict[str, Any]:
+    N_s = {}
+    N_sa = {}
+    Q_sa = {}
+
+    for _ in range(num_simulations):
+        s = root_state
+        depth = 0
+        path = []
+
+        # Selection + Expansion
+        while not terminal_fn(s) and depth < max_depth and len(legal_actions_fn(s)) != 0:
+            actions = legal_actions_fn(s)
+            unvisited_a = [a for a in actions if (s,a) not in N_sa]
+
+            # Si todavía hay acciones sin visitar se visitan
+            if unvisited_a:
+                a = unvisited_a[0]
+                path.append((s,a))
+
+                N_s[s] = N_s.get(s, 0) + 1
+                N_sa[(s,a)] = 1
+                Q_sa[(s,a)] = 0
+
+                s = successor_fn(s, a, rng)
+                depth += 1
+                break   # para que solo expanda hasta añadir UN SOLO nuevo nodo al arbol
+
+            # Si ya se han visitado todas las acciones se ecoge una con UCT (explore, exploit)
+            else:
+                best_a = None
+                best_value = -float("inf")
+
+                for a in actions:
+                    uct = Q_sa[(s,a)] + exploration_c * math.sqrt(math.log(N_s.get(s,0) + 1) / (N_sa[(s,a)] + 1))
+                    if uct > best_value:
+                        best_value = uct
+                        best_a = a
+                
+                a = best_a
+                path.append((s,a))
+
+                N_s[s] = N_s.get(s,0) + 1
+                N_sa[(s,a)] += 1
+
+                s = successor_fn(s, a, rng)
+                depth += 1
+
+        # Rollout inteligente
+        while not terminal_fn(s) and depth < max_depth and len(legal_actions_fn(s)) != 0:
+            actions = legal_actions_fn(s)
+            current_player = s.player
+
+            act = int(rng.choice(actions))
+                
+            opp = HashableConnectState(s.board, -current_player)
+            for a in actions:
+                if opp.transition(a).get_winner() == -current_player:
+                    act = a
+            
+            for a in actions: 
+                if s.transition(a).get_winner() == current_player:
+                    act = a
+
+            s = successor_fn(s, act, rng)
+            depth += 1
+
+        # Rewards
+        if terminal_fn(s):
+            R = reward_fn(s)
+        else:
+            R = 0
+        
+        # Backpropagation: solo guarda/actualiza los valores de los nodos que 
+        # se visitan en la parte de selection + expansion
+        for (state, action) in path:
+            Q_sa[(state, action)] = Q_sa[(state, action)] + (R - Q_sa[(state, action)]) / N_sa[(state, action)]
+
+    # Returns
+    actions = legal_actions_fn(root_state)
+
+    q_root = {}
+    n_root = {}
+
+    for a in actions:
+        if (root_state, a) in N_sa:
+            q_root[a] = Q_sa[(root_state, a)]
+            n_root[a] = N_sa[(root_state, a)]
+
+    best_action = None
+
+    if q_root:
+        max_q = max(q_root.values())
+        best_candidates = [a for a in q_root if q_root[a] == max_q]
+        best_action = sorted(best_candidates)[0]    
+
+    return {"q_root": q_root, "n_root": n_root, "best_action": best_action,}
