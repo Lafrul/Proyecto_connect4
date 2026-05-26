@@ -1,15 +1,5 @@
 # Agente MCTS — Laura Franco
 
-## Idea principal
-
-Agente basado en **Monte-Carlo Tree Search (MCTS) con selección UCT**. En cada turno construye un árbol de búsqueda corriendo `num_simulations` simulaciones desde el estado actual, balanceando exploración y explotación mediante la fórmula UCT:
-
-```
-UCT(s, a) = Q(s,a) + c × √( log(N(s)+1) / (N(s,a)+1) )
-```
-
-Adicionalmente, utiliza reglas fijas que buscan evitar amenzas y aprovechar oportunidades específicas.
-
 ## Estructura de archivos
 
 ```
@@ -20,17 +10,6 @@ groups/Laura/
 ```
 
 > Todo el código del agente se encuentra en el archivo 'policy.py' para simplificar los imports.
-
----
-
-## Parámetros configurables
-
-Atributos de clase en `MCTSAgent` — se pueden cambiar sin tocar el código del agente:
-
-| Parámetro | Default | Efecto |
-|---|---|---|
-| `num_simulations` | 100 | Más simulaciones = mejor juego, más tiempo por turno |
-| `exploration_c` | √2 ≈ 1.41 | Balance exploración/explotación en UCT |
 
 ---
 
