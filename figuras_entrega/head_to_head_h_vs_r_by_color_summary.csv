@@ -1,0 +1,11 @@
+focal_agent,opponent,focal_color,trials,games,wins,draws,losses,win_rate,draw_rate,loss_rate,mean_score,mean_moves,mean_decision_time,mean_game_time
+Agente con rollouts heuristicos,Agente con rollouts aleatorios,first,1.0,10,10,0,0,1.0,0.0,0.0,1.0,8.0,0.046313804283445656,0.2283943300019018
+Agente con rollouts heuristicos,Agente con rollouts aleatorios,first,5.0,10,10,0,0,1.0,0.0,0.0,1.0,12.8,0.25850656519587717,1.8840204100037226
+Agente con rollouts heuristicos,Agente con rollouts aleatorios,first,10.0,10,10,0,0,1.0,0.0,0.0,1.0,14.2,0.4840328300759378,3.913201429997571
+Agente con rollouts heuristicos,Agente con rollouts aleatorios,first,25.0,10,7,0,3,0.7,0.0,0.3,0.4,25.7,1.0798858229058224,15.4258107200003
+Agente con rollouts heuristicos,Agente con rollouts aleatorios,first,50.0,10,8,0,2,0.8,0.0,0.2,0.6,26.0,1.7792864957268837,25.758192430000054
+Agente con rollouts heuristicos,Agente con rollouts aleatorios,second,1.0,10,10,0,0,1.0,0.0,0.0,1.0,14.0,0.06684013719557848,0.4789740999956848
+Agente con rollouts heuristicos,Agente con rollouts aleatorios,second,5.0,10,10,0,0,1.0,0.0,0.0,1.0,17.8,0.29456998092024433,2.526512779999757
+Agente con rollouts heuristicos,Agente con rollouts aleatorios,second,10.0,10,8,1,1,0.8,0.1,0.1,0.7,20.3,0.5544323696593937,5.42883879999863
+Agente con rollouts heuristicos,Agente con rollouts aleatorios,second,25.0,10,8,0,2,0.8,0.0,0.2,0.6,24.6,1.1123549863006583,14.069029339996632
+Agente con rollouts heuristicos,Agente con rollouts aleatorios,second,50.0,10,10,0,0,1.0,0.0,0.0,1.0,23.6,2.1391085038888447,26.409010329999727

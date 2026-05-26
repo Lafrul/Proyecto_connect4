@@ -1,0 +1,12 @@
+focal_agent,trials,games,wins,draws,losses,win_rate,draw_rate,loss_rate,mean_decision_time
+Agente con rollouts aleatorios,1.0,200,141,1,58,0.7050000000000001,0.005,0.29000000000000004,0.04334844278393322
+Agente con rollouts aleatorios,5.0,200,185,0,15,0.925,0.0,0.075,0.06325641297484265
+Agente con rollouts aleatorios,10.0,200,194,0,6,0.97,0.0,0.03,0.11829976040477558
+Agente con rollouts aleatorios,25.0,200,200,0,0,1.0,0.0,0.0,0.1859190305038511
+Agente con rollouts aleatorios,50.0,200,200,0,0,1.0,0.0,0.0,0.5389066512148059
+Agente con rollouts aleatorios,100.0,200,200,0,0,1.0,0.0,0.0,0.4752383012631516
+Agente con rollouts heuristicos,1.0,20,20,0,0,1.0,0.0,0.0,0.061097029001022776
+Agente con rollouts heuristicos,5.0,20,20,0,0,1.0,0.0,0.0,0.2710714620553456
+Agente con rollouts heuristicos,10.0,20,20,0,0,1.0,0.0,0.0,0.5905157830598406
+Agente con rollouts heuristicos,25.0,20,20,0,0,1.0,0.0,0.0,1.4448197192707442
+Agente con rollouts heuristicos,50.0,20,20,0,0,1.0,0.0,0.0,3.1304706561445417
