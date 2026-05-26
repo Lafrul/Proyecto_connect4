@@ -1,0 +1,4 @@
+starter,games,s_wins,laura_wins,draws,s_win_rate,laura_win_rate,draw_rate,mean_moves,mean_total_game_time
+Todos,50,43,5,2,0.86,0.1,0.04,21.34,25.379551250002113
+Agente Laura MCTS,25,24,0,1,0.96,0.0,0.04,23.6,30.518367932003457
+Agente con rollouts heuristicos,25,19,5,1,0.76,0.2,0.04,19.08,20.24073456800077
